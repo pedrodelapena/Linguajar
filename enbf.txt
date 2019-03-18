@@ -1,0 +1,58 @@
+programa
+   : statement+
+
+declaraçao
+   : funcdeclr
+   | declr
+
+funçao
+   : especificaçao declr statement
+
+statement
+   : 'se' paren_expr statement
+   | 'se' paren_expr statement 'se_nao' statement
+   | 'enquanto' paren_expr statement
+   | 'faça' statement 'enquanto' paren_expr
+   | 'para' statement 'em' statement 'faça'
+   | ':' statement* 'fim' 
+   | expr 
+
+paren_expr
+   : '(' expr ')'
+ 
+expr
+   : comparaçao
+   | id '=' expr
+ 
+comparaçao
+   : sum
+   | sum '<' sum
+ 
+sum
+   : term
+   | sum '+' term
+   | sum '-' term
+ 
+
+terminal
+   : id
+   | integer
+   | paren_expr
+ 
+id
+   : STRING
+ 
+inteiro
+   : INT
+ 
+STRING
+   : [a-z]+
+ 
+INT
+   : [0-9]+
+
+açoes
+   : continuar;
+   | quebrar
+   | parar
+ 
