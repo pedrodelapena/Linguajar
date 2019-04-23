@@ -1,58 +1,54 @@
-programa
-   : statement+
+program : statements
 
-declaraçao
-   : funcdeclr
-   | declr
+statements : statement
+           | statements statement
+           ;
+           
+statement : attribution PONTO
+          | expression PONTO
+          | ifelse PONTO
+          | declaration PONTO
+          | while PONTO
+          | print PONTO
+          ;
+ 
+attribution : NOME IG expression ;
 
-funçao
-   : especificaçao declr statement
+expression : term
+           | term MAIS term
+           | term MENOS term
+           | term OU term
+           ;
 
-statement
-   : 'se' paren_expr statement
-   | 'se' paren_expr statement 'se_nao' statement
-   | 'enquanto' paren_expr statement
-   | 'faça' statement 'enquanto' paren_expr
-   | 'para' statement 'em' statement 'faça'
-   | ':' statement* 'fim' 
-   | expr 
+ifelse : SE PABR relexpression PFEC INICIO statements FIM
+       | SE PABR relexpression PFEC INICIO statements FIM SENAO INICIO statements FIM
+       ;
 
-paren_expr
-   : '(' expr ')'
- 
-expr
-   : comparaçao
-   | id '=' expr
- 
-comparaçao
-   : sum
-   | sum '<' sum
- 
-sum
-   : term
-   | sum '+' term
-   | sum '-' term
- 
+declaration : type NOME
 
-terminal
-   : id
-   | integer
-   | paren_expr
- 
-id
-   : STRING
- 
-inteiro
-   : INT
- 
-STRING
-   : [a-z]+
- 
-INT
-   : [0-9]+
+while : ENQUANTO relexpression FAZER statement ENCERRADO ;
 
-açoes
-   : continuar;
-   | quebrar
-   | parar
- 
+print: MOSTRAR PABR expression PFEC
+
+relexpression : expression IGUAL expression
+              | expression DIFER expression
+              | expression MAIOR expression
+              | expression MENOR expression
+              | expression MAIORIG expression
+              | expression MENORIG expression
+              
+term : factor
+     | factor MULTIP factor
+     | factor DIVIDE factor
+     | factor ETMB factor
+     ;
+    
+factor : NUMERO
+       | NOME
+       | PABR expression PFEC
+       ;
+     
+type : INTEGER ;
+
+dummy :  ;
+
