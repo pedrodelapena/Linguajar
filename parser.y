@@ -8,9 +8,9 @@ void yyerror(const char* s);
 %}
 
 %union {
-  int ival;
-  float fval;
-  char *sval;
+ int ival;
+ float fval;
+ char *sval;
 }
 
 %token<ival> tk_int
@@ -36,6 +36,8 @@ void yyerror(const char* s);
 
 %token tk_if
 %token tk_else
+%token tk_do
+%token tk_then
 %token tk_while
 %token tk_whileend
 
@@ -43,100 +45,87 @@ void yyerror(const char* s);
 %token tk_or
 %token tk_and
 
-
 %token tk_par_open
 %token tk_par_close
-
+%token tk_break
 
 %start program
 
 %%
 
-program: func_def | decl ;
+program: func_def | decl | ;
 
-func_def: type_spec  declarator  comb_statement ;
+func_def: type_spec declaration compound_statement ;
 
-decl: type_spec  declarator  ';' ;
+decl: type_spec declaration tk_break;
 
 type_spec: tk_int | tk_float ;
 
-declarator: tk_id
-			| tk_par_open  declarator  tk_par_close
+declaration: tk_id | tk_par_open declaration tk_par_close ;
+
+compound_statement: tk_begin declaration statement_list tk_end
+			| tk_begin statement_list tk_end
 			;
 
-comb_statement: tk_begin  declarator  statement_list  tk_end
-			| tk_begin  statement_list  tk_end
-			| tk_begin  tk_end
-			;
-
-statement_list: statement | statement_list  statement ;
+statement_list: statement ;
 
 statement: exp_statement
-			| comb_statement
-			| selection_statement
-			| iteration_statement
+			| compound_statement 
+			| if_statement
+			| while_statement
 			;
 
-exp_statement: exp ';' ;
+exp_statement: exp tk_break;
 
-selection_statement: tk_if  tk_par_open  exp  tk_par_close  statement
-			| tk_if  tk_par_open  exp  tk_par_close  statement  tk_else  statement
+if_statement: tk_if tk_par_open exp tk_par_close tk_then tk_do statement tk_end
+			| tk_if tk_par_open exp tk_par_close tk_then tk_do statement tk_else statement tk_end
 			;
 
-iteration_statement: tk_while  tk_par_open  exp  tk_par_close  statement tk_whileend
-			;
+while_statement: tk_while tk_par_open exp tk_par_close tk_do statement tk_whileend ;
 
 exp: assign_exp ;
 
-assign_exp: log_exp
-			| un_exp  tk_assign  assign_exp
-			;
+assign_exp: log_exp | un_exp tk_assign assign_exp ;
 
-log_exp: logical_or | logical_and ;
+log_exp: log_or | log_and ;
 
-logical_or: eq_exp
-			| logical_or assign_exp tk_or eq_exp
-			;
+log_or: eq_exp | log_or assign_exp tk_or eq_exp ;
 
-logical_and: eq_exp
-			| logical_and tk_and eq_exp
-			;
+log_and: eq_exp | log_and tk_and eq_exp ;
 
 eq_exp: rel_exp
 			| eq_exp tk_equal rel_exp
-            | eq_exp tk_different rel_exp
+      		| eq_exp tk_different rel_exp
 			;
 
-rel_exp: add_exp
-            | rel_exp tk_greater add_exp
-            | rel_exp tk_greater_equal add_exp
-            | rel_exp tk_less add_exp
-			| rel_exp tk_less_equal add_exp
+rel_exp: addsub_exp
+      		| rel_exp tk_greater addsub_exp
+      		| rel_exp tk_greater_equal addsub_exp
+      		| rel_exp tk_less addsub_exp
+			| rel_exp tk_less_equal addsub_exp
 			;
 
-add_exp: mult_exp
-			| add_exp tk_plus mult_exp
-			| add_exp tk_minus mult_exp
+addsub_exp: multdiv_exp
+			| addsub_exp tk_plus multdiv_exp
+			| addsub_exp tk_minus multdiv_exp
 			;
 
-mult_exp: un_exp
-			| mult_exp tk_mult un_exp
-			| mult_exp tk_division un_exp
+multdiv_exp: un_exp
+			| multdiv_exp tk_mult un_exp
+			| multdiv_exp tk_division un_exp
 			;
 
-un_exp: primary_exp
-			| un_op primary_exp
-			;
+un_exp: primary_exp | un_op primary_exp ;
 
-un_op:  tk_plus 
-            | tk_minus 
-            | tk_not
+un_op: tk_plus 
+      		| tk_minus 
+      		| tk_not
 			;
 
 primary_exp: tk_id
 			| string
 			| const
-			| tk_par_open  exp  tk_par_close
+			| tk_par_open exp tk_par_close
 			;
 
 const: tk_int | tk_float ;
