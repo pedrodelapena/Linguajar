@@ -52,18 +52,13 @@ void yyerror(const char* s);
 
 %%
 
-program: func_def
-			| decl
-			;
+program: func_def | decl ;
 
-func_def: type_spec  declarator  comb_statement
-			;
+func_def: type_spec  declarator  comb_statement ;
 
 decl: type_spec  declarator  ';' ;
 
-type_spec:  tk_int
-			| tk_float
-			;
+type_spec: tk_int | tk_float ;
 
 declarator: tk_id
 			| tk_par_open  declarator  tk_par_close
