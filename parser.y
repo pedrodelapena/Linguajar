@@ -48,19 +48,18 @@ void yyerror(const char* s);
 %token tk_par_close
 
 
-%start external_decl
+%start program
 
 %%
 
-external_decl: function_definition
+program: func_def
 			| decl
 			;
 
-function_definition: type_spec  declarator  compound_stat
+func_def: type_spec  declarator  comb_statement
 			;
 
-decl: type_spec  declarator  ';'
-			;
+decl: type_spec  declarator  ';' ;
 
 type_spec:  tk_int
 			| tk_float
@@ -70,85 +69,83 @@ declarator: tk_id
 			| tk_par_open  declarator  tk_par_close
 			;
 
-compound_stat: tk_begin  declarator  stat_list  tk_end
-			| tk_begin  stat_list  tk_end
+comb_statement: tk_begin  declarator  statement_list  tk_end
+			| tk_begin  statement_list  tk_end
 			| tk_begin  tk_end
 			;
 
-stat_list: stat
-			| stat_list  stat
+statement_list: statement | statement_list  statement ;
+
+statement: exp_statement
+			| comb_statement
+			| selection_statement
+			| iteration_statement
 			;
 
-stat: exp_stat
-			| compound_stat
-			| selection_stat
-			| iteration_stat
+exp_statement: exp ';' ;
+
+selection_statement: tk_if  tk_par_open  exp  tk_par_close  statement
+			| tk_if  tk_par_open  exp  tk_par_close  statement  tk_else  statement
 			;
 
-exp_stat: exp ';'
+iteration_statement: tk_while  tk_par_open  exp  tk_par_close  statement tk_whileend
 			;
 
-selection_stat: tk_if  tk_par_open  exp  tk_par_close  stat
-			| tk_if  tk_par_open  exp  tk_par_close  stat  tk_else  stat
+exp: assign_exp ;
+
+assign_exp: log_exp
+			| un_exp  tk_assign  assign_exp
 			;
 
-iteration_stat: tk_while  tk_par_open  exp  tk_par_close  stat tk_whileend
+log_exp: logical_or | logical_and ;
+
+logical_or: eq_exp
+			| logical_or assign_exp tk_or eq_exp
 			;
 
-exp:  assignment_exp;
-
-assignment_exp: conditional_exp
-			| unary_exp  tk_assign  assignment_exp
+logical_and: eq_exp
+			| logical_and tk_and eq_exp
 			;
 
-conditional_exp: logical_or | logical_and ;
-
-logical_or: equality_exp
-			| logical_or tk_or equality_exp
+eq_exp: rel_exp
+			| eq_exp tk_equal rel_exp
+            | eq_exp tk_different rel_exp
 			;
 
-logical_and: equality_exp
-			| logical_and tk_and equality_exp
+rel_exp: add_exp
+            | rel_exp tk_greater add_exp
+            | rel_exp tk_greater_equal add_exp
+            | rel_exp tk_less add_exp
+			| rel_exp tk_less_equal add_exp
 			;
 
-equality_exp: relational_exp
-			| equality_exp tk_equal relational_exp
-            | equality_exp tk_different relational_exp
+add_exp: mult_exp
+			| add_exp tk_plus mult_exp
+			| add_exp tk_minus mult_exp
 			;
 
-relational_exp: additive_exp
-            | relational_exp tk_greater additive_exp
-            | relational_exp tk_greater_equal additive_exp
-            | relational_exp tk_less additive_exp
-			| relational_exp tk_less_equal additive_exp
+mult_exp: un_exp
+			| mult_exp tk_mult un_exp
+			| mult_exp tk_division un_exp
 			;
 
-additive_exp: mult_exp
-			| additive_exp tk_plus mult_exp
-			| additive_exp tk_minus mult_exp
+un_exp: primary_exp
+			| un_op primary_exp
 			;
 
-mult_exp: unary_exp
-			| mult_exp tk_mult unary_exp
-			| mult_exp tk_division unary_exp
-			;
-
-unary_exp: primary_exp
-			| unary_operator primary_exp
-			;
-
-unary_operator:  tk_plus 
+un_op:  tk_plus 
             | tk_minus 
             | tk_not
 			;
 
 primary_exp: tk_id
-			| const
 			| string
+			| const
 			| tk_par_open  exp  tk_par_close
 			;
 
 const: tk_int | tk_float ;
+
 %%
 int main() {
 	yyin = stdin;
