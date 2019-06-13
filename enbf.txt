@@ -8,7 +8,7 @@ statement_list: statement ;
 statement: exp_statement | compound_statement | if_statement| while_statement
 exp_statement: exp tk_break;
 if_statement: SE ( exp ) tk_then FAZER statement FIM | SE ( exp ) tk_then FAZER statement SENAO statement FIM SE
-while_statement: ENQUANTO ( exp ) statement ENCERRADO ;
+while_statement: ENQUANTO ( exp ) statement FINALIZADO ;
 exp: assign_exp ;
 assign_exp: log_exp | un_exp IGUAL assign_exp ;
 log_exp: log_or | log_and ;
