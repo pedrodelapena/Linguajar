@@ -1,24 +1,24 @@
 program: func_def | decl | ;
 func_def: type_spec declaration compound_statement ;
 decl: type_spec declaration tk_break;
-type_spec: TIPO | FRAC ;
-declaration: tk_id | PABR declaration PFEC ;
+type_spec: TIPO ;
+declaration: tk_id | ( declaration ) ;
 compound_statement: INICIO declaration statement_list FIM | INICIO statement_list FIM
 statement_list: statement ;
 statement: exp_statement | compound_statement | if_statement| while_statement
 exp_statement: exp tk_break;
-if_statement: SE PABR exp PFEC tk_then FAZER statement FIM | SE PABR exp PFEC tk_then FAZER statement SENAO statement FIM
-while_statement: ENQUANTO PABR exp PFEC FAZER statement ENCERRADO ;
+if_statement: SE ( exp ) tk_then FAZER statement FIM | SE ( exp ) tk_then FAZER statement SENAO statement FIM SE
+while_statement: ENQUANTO ( exp ) statement ENCERRADO ;
 exp: assign_exp ;
 assign_exp: log_exp | un_exp IGUAL assign_exp ;
 log_exp: log_or | log_and ;
 log_or: eq_exp | log_or assign_exp OU eq_exp ;
 log_and: eq_exp | log_and ETMB eq_exp ;
-eq_exp: rel_exp | eq_exp IG rel_exp | eq_exp DIFER rel_exp
+eq_exp: rel_exp | eq_exp = rel_exp ;
 rel_exp: addsub_exp | rel_exp MAIOR addsub_exp | rel_exp MAIORIG addsub_exp | rel_exp MENOR addsub_exp | rel_exp MENORIG addsub_exp
 addsub_exp: multdiv_exp | addsub_exp MAIS multdiv_exp | addsub_exp MENOS multdiv_exp ;
 multdiv_exp: un_exp | multdiv_exp MULTIP un_exp | multdiv_exp DIVIDE un_exp ;
 un_exp: primary_exp | un_op primary_exp ;
 un_op: MAIS | MENOS | NEG ;
-primary_exp: tk_id | string | const | PABR exp PFEC ; 
-const: TIPO | FRAC ;
+primary_exp: tk_id | string | const | ( exp ) ; 
+const: TIPO ;
