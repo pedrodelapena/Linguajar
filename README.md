@@ -1,4 +1,7 @@
 # Linguajar
+
+This project consists on the development of a programming language based on the Brazilian Portuguese language. 
+
 O projeto consiste no desenvolvimento de uma linguagem de programação em português (BR). Após estudar a viabilidade, foi decidido que será implementada utilizando um compilador próprio.
 
 Refferences:<br>
